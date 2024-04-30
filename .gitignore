@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# VSCode
+**/.vscode/*
+
+# CMake build directories
+**/_build-*/*
+**/_build*/*
+**/build-*/*
+**/build*/*
