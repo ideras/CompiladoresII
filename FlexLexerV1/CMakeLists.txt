@@ -5,7 +5,8 @@ find_package(FLEX)
 
 FLEX_TARGET(MyScanner LexerImpl.l
             ${CMAKE_CURRENT_BINARY_DIR}/LexerImpl.cpp
-            COMPILE_FLAGS --header-file=${CMAKE_CURRENT_BINARY_DIR}/LexerImpl.h)
+            DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/LexerImpl.h
+            )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_SOURCE_DIR})
