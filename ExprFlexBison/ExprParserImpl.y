@@ -1,5 +1,6 @@
 
 %define parse.error verbose
+%define api.pure full
 
 %{
 
@@ -17,7 +18,7 @@ void yyerror(const char *msg)
     std::cerr << "Error: " << msg << '\n';
 }
 
-#define yylex() static_cast<int>(lexer.nextToken())
+#define yylex(v) static_cast<int>(lexer.nextToken(v))
 
 %}
 

@@ -17,20 +17,23 @@ enum class Token: int {
 
 class ExprLexer
 {
+public:
     using yyscan_t = void*;
+    using BisonValueType = int;
+
 public:
     ExprLexer(std::istream& _in);
     ~ExprLexer();
 
-    Token nextToken()
-    { return nextTokenHelper(yyscanner); }
+    Token nextToken(BisonValueType *lval)
+    { return nextTokenHelper(yyscanner, lval); }
 
     std::string text() const;
 
     static const char *tokenString(Token tk);
 
 private:
-    Token nextTokenHelper(yyscan_t yyscanner);
+    Token nextTokenHelper(yyscan_t yyscanner, BisonValueType *lval);
 
 private:
     std::istream& in;

@@ -8,10 +8,7 @@
 #include <cstdlib>
 #include "ExprLexer.hpp"
 
-// Bison synthesized value
-extern int yylval;
-
-#define YY_DECL Token ExprLexer::nextTokenHelper(yyscan_t yyscanner)
+#define YY_DECL Token ExprLexer::nextTokenHelper(yyscan_t yyscanner, ExprLexer::BisonValueType *lval)
 #define yyterminate() return Token::Eof
 
 #define YY_INPUT(buf, result, max_size) \
@@ -32,7 +29,7 @@ extern int yylval;
 "*"		{ return Token::OpMult; }
 "("		{ return Token::OpenPar; }
 ")"		{ return Token::ClosePar; }
-[0-9]+	{ yylval = std::atoi(yytext); return Token::Number; }
+[0-9]+	{ *lval = std::atoi(yytext); return Token::Number; }
 .		{ std::cerr << "Invalid symbol\n"; return Token::Error; }
 
 <comment>"*/" { BEGIN(INITIAL); }
