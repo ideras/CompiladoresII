@@ -17,7 +17,7 @@ void yyerror(const char *msg)
     std::cerr << "Error: " << msg << '\n';
 }
 
-#define yylex() lexer.nextToken()
+#define yylex() static_cast<int>(lexer.nextToken())
 
 %}
 

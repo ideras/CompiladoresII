@@ -5,12 +5,14 @@
 
 %{
 #include <iostream>
-#include <string>
-#include "ExprParserImpl.h"
+#include <cstdlib>
 #include "ExprLexer.hpp"
 
-#define YY_DECL yytokentype ExprLexer::nextTokenHelper(yyscan_t yyscanner)
-#define yyterminate() return YYEOF
+// Bison synthesized value
+extern int yylval;
+
+#define YY_DECL Token ExprLexer::nextTokenHelper(yyscan_t yyscanner)
+#define yyterminate() return Token::Eof
 
 #define YY_INPUT(buf, result, max_size) \
     { \
@@ -26,12 +28,12 @@
 [ \t\n]	{  }
 "//"[^\n]*\n { }
 "/*" { BEGIN(comment); }
-"+"		{ return OpAdd; }
-"*"		{ return OpMult; }
-"("		{ return OpenPar; }
-")"		{ return ClosePar; }
-[0-9]+	{ yylval = std::stoi(yytext); return Number; }
-.		{ std::cerr << "Invalid symbol\n"; }
+"+"		{ return Token::OpAdd; }
+"*"		{ return Token::OpMult; }
+"("		{ return Token::OpenPar; }
+")"		{ return Token::ClosePar; }
+[0-9]+	{ yylval = std::atoi(yytext); return Token::Number; }
+.		{ std::cerr << "Invalid symbol\n"; return Token::Error; }
 
 <comment>"*/" { BEGIN(INITIAL); }
 <comment>.|\n { /* Nothing */ }

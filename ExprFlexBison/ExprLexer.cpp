@@ -18,7 +18,7 @@ std::string ExprLexer::text() const
     return std::string(yyget_text(yyscanner));
 }
 
-const char *ExprLexer::tokenString(yytokentype tk)
+const char *ExprLexer::tokenString(Token tk)
 {
     return "Unknown";
 }

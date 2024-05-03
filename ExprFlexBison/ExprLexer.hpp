@@ -3,7 +3,17 @@
 
 #include <iosfwd>
 #include <string>
-#include "ExprParserImpl.h"
+
+enum class Token: int {
+    Eof = 0,
+    Error = 256,
+    Undef = 257,
+    OpAdd = 258,
+    OpMult = 259,
+    OpenPar = 260,
+    ClosePar = 261,
+    Number = 262
+};
 
 class ExprLexer
 {
@@ -12,15 +22,15 @@ public:
     ExprLexer(std::istream& _in);
     ~ExprLexer();
 
-    yytokentype nextToken()
+    Token nextToken()
     { return nextTokenHelper(yyscanner); }
 
     std::string text() const;
 
-    static const char *tokenString(yytokentype tk);
+    static const char *tokenString(Token tk);
 
 private:
-    yytokentype nextTokenHelper(yyscan_t yyscanner);
+    Token nextTokenHelper(yyscan_t yyscanner);
 
 private:
     std::istream& in;
