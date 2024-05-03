@@ -5,7 +5,7 @@
 ExprLexer::ExprLexer(std::istream& _in)
   : in(_in)
 {
-    yylex_init_extra(reinterpret_cast<void *>(&in), &yyscanner);
+    yylex_init_extra(&in, &yyscanner);
 }
 
 ExprLexer::~ExprLexer()

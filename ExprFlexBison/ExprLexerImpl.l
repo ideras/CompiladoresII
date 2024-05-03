@@ -1,6 +1,7 @@
 %option noyywrap
 %option reentrant
 %option yylineno
+%option extra-type = "std::istream *"
 
 %{
 #include <iostream>
@@ -13,7 +14,7 @@
 
 #define YY_INPUT(buf, result, max_size) \
     { \
-        auto *in = reinterpret_cast<std::istream *>(yyget_extra(yyscanner)); \
+        auto *in = yyget_extra(yyscanner); \
         in->read(buf, max_size); \
         result = in->gcount(); \
     }
