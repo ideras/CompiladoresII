@@ -11,7 +11,6 @@ FLEX_TARGET(ExprLexer ExprLexerImpl.l
 
 BISON_TARGET(ExprParser ExprParserImpl.y
             ${CMAKE_CURRENT_BINARY_DIR}/ExprParserImpl.cpp
-            DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/ExprParserImpl.h
             )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
