@@ -1,0 +1,80 @@
+%{
+#include "ExprAst.hpp"
+%}
+
+%decls %{
+#include <string>
+#include <unordered_map>
+
+using stdstring = std::string;
+using SymbolTable = std::unordered_map<std::string, double>;
+%}
+
+%option lang = "C++"
+
+%node AstNode %abstract %typedef
+
+%node BinaryExpr AstNode %abstract = {
+    AstNode *expr1;
+    AstNode *expr2;
+}
+
+%node AddExpr BinaryExpr
+%node MulExpr BinaryExpr
+
+%node NumExpr AstNode = {
+    double value;
+}
+
+%node IdentExpr AstNode = {
+    stdstring text;
+}
+
+%operation stdstring toString(AstNode *expr) = {""}
+%operation %virtual double eval(AstNode *this, const SymbolTable& cmap)
+
+toString(AddExpr) {
+    std::string s1 = toString(expr->expr1);
+    std::string s2 = toString(expr->expr2);
+
+    return "(" + s1 + " + " + s2 + ")";
+}
+
+toString(MulExpr) {
+    std::string s1 = toString(expr->expr1);
+    std::string s2 = toString(expr->expr2);
+
+    return s1 + " * " + s2;
+}
+
+toString(NumExpr) {
+    return std::to_string(expr->value);
+}
+
+toString(IdentExpr) {
+    return expr->text;
+}
+
+eval(AddExpr) {
+    double v1 = expr1->eval(cmap);
+    double v2 = expr2->eval(cmap);
+
+    return v1 + v2;
+}
+
+eval(MulExpr) {
+    double v1 = expr1->eval(cmap);
+    double v2 = expr2->eval(cmap);
+
+    return v1 * v2;
+}
+
+eval(NumExpr) {
+    return value;
+}
+
+eval(IdentExpr) {
+    auto it = cmap.find(text);
+
+    return (it != cmap.end())? it->second : 0.0;
+}
