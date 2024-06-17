@@ -4,8 +4,7 @@ x = (10 + 20 - 5) * 3;
  * Line 1
  * Line 2
  */
-// == !=
-if (x < 10) {
+if (x > 10) {
     print (x);
 } else {
     print (x - 10);

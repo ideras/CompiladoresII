@@ -1,0 +1,235 @@
+%{
+#include <iostream>
+#include "ExprAst.hpp"
+
+%}
+
+%decls %{
+#include <string>
+#include <unordered_map>
+#include <variant>
+#include "SemError.hpp"
+
+using stdstring = std::string;
+using Value = std::variant<bool, double>;
+using SymbolTable = std::unordered_map<std::string, Value>;
+
+%}
+
+%option lang = "C++"
+
+%node AstNode %abstract %typedef
+
+%node Stmt AstNode %abstract
+
+%node AssignStmt Stmt = {
+    AstNode *var;
+    AstNode *rvalue;
+}
+
+%node PrintStmt Stmt = {
+    AstNode *expr;
+}
+
+%node IfStmt Stmt = {
+    AstNode *cond;
+    AstNode *stmt_t;
+    AstNode *stmt_f;
+}
+
+%node BinaryExpr AstNode %abstract = {
+    AstNode *expr1;
+    AstNode *expr2;
+}
+
+%node AddExpr BinaryExpr
+%node SubExpr BinaryExpr
+%node MulExpr BinaryExpr
+%node LessExpr BinaryExpr
+%node LessOrEqualExpr BinaryExpr
+%node GreaterExpr BinaryExpr
+%node GreaterOrEqualExpr BinaryExpr
+%node EqualExpr BinaryExpr
+%node NotEqualExpr BinaryExpr
+
+%node NumExpr AstNode = {
+    double value;
+}
+
+%node IdentExpr AstNode = {
+    stdstring text;
+}
+
+// %operation stdstring toString(AstNode *expr) = {""}
+%operation %virtual Value eval(AstNode *this, SymbolTable& symb_tbl)
+
+/*toString(AddExpr) {
+    std::string s1 = toString(expr->expr1);
+    std::string s2 = toString(expr->expr2);
+
+    return "(" + s1 + " + " + s2 + ")";
+}
+
+toString(MulExpr) {
+    std::string s1 = toString(expr->expr1);
+    std::string s2 = toString(expr->expr2);
+
+    return s1 + " * " + s2;
+}
+
+toString(NumExpr) {
+    return std::to_string(expr->value);
+}
+
+toString(IdentExpr) {
+    return expr->text;
+}*/
+
+eval(AddExpr) {
+    Value v1 = expr1->eval(symb_tbl);
+    Value v2 = expr2->eval(symb_tbl);
+
+    if (!std::holds_alternative<double>(v1) || !std::holds_alternative<double>(v2)) {
+        throw SemError("Operator + only aplicable to double");
+    }
+
+    return std::get<double>(v1) + std::get<double>(v2);
+}
+
+eval(SubExpr) {
+    Value v1 = expr1->eval(symb_tbl);
+    Value v2 = expr2->eval(symb_tbl);
+
+    if (!std::holds_alternative<double>(v1) || !std::holds_alternative<double>(v2)) {
+        throw SemError("Operator - only aplicable to double");
+    }
+
+    return std::get<double>(v1) - std::get<double>(v2);
+}
+
+eval(MulExpr) {
+    Value v1 = expr1->eval(symb_tbl);
+    Value v2 = expr2->eval(symb_tbl);
+
+    if (!std::holds_alternative<double>(v1) || !std::holds_alternative<double>(v2)) {
+        throw SemError("Operator * only aplicable to double");
+    }
+
+    return std::get<double>(v1) * std::get<double>(v2);
+}
+
+eval(LessExpr) {
+    Value v1 = expr1->eval(symb_tbl);
+    Value v2 = expr2->eval(symb_tbl);
+
+    if (!std::holds_alternative<double>(v1) || !std::holds_alternative<double>(v2)) {
+        throw SemError("Operator < only aplicable to double");
+    }
+
+    return std::get<double>(v1) < std::get<double>(v2);
+}
+
+eval(LessOrEqualExpr) {
+    Value v1 = expr1->eval(symb_tbl);
+    Value v2 = expr2->eval(symb_tbl);
+
+    if (!std::holds_alternative<double>(v1) || !std::holds_alternative<double>(v2)) {
+        throw SemError("Operator <= only aplicable to double");
+    }
+
+    return std::get<double>(v1) <= std::get<double>(v2);
+}
+
+eval(GreaterExpr) {
+    Value v1 = expr1->eval(symb_tbl);
+    Value v2 = expr2->eval(symb_tbl);
+
+    if (!std::holds_alternative<double>(v1) || !std::holds_alternative<double>(v2)) {
+        throw SemError("Operator > only aplicable to double");
+    }
+
+    return std::get<double>(v1) > std::get<double>(v2);
+}
+
+eval(GreaterOrEqualExpr) {
+    Value v1 = expr1->eval(symb_tbl);
+    Value v2 = expr2->eval(symb_tbl);
+
+    if (!std::holds_alternative<double>(v1) || !std::holds_alternative<double>(v2)) {
+        throw SemError("Operator >= only aplicable to double");
+    }
+
+    return std::get<double>(v1) >= std::get<double>(v2);
+}
+
+eval(EqualExpr) {
+    Value v1 = expr1->eval(symb_tbl);
+    Value v2 = expr2->eval(symb_tbl);
+
+    if (!std::holds_alternative<double>(v1) || !std::holds_alternative<double>(v2)) {
+        throw SemError("Operator == only aplicable to double");
+    }
+
+    return std::get<double>(v1) == std::get<double>(v2);
+}
+
+eval(NotEqualExpr) {
+    Value v1 = expr1->eval(symb_tbl);
+    Value v2 = expr2->eval(symb_tbl);
+
+    if (!std::holds_alternative<double>(v1) || !std::holds_alternative<double>(v2)) {
+        throw SemError("Operator != only aplicable to double");
+    }
+
+    return std::get<double>(v1) != std::get<double>(v2);
+}
+
+eval(NumExpr) {
+    return value;
+}
+
+eval(IdentExpr) {
+    auto it = symb_tbl.find(text);
+
+    if (it == symb_tbl.end()) {
+        throw SemError("Variable '" + text + "' has not been declared");
+    }
+
+    return it->second;
+}
+
+eval (AssignStmt) {
+    Value v = rvalue->eval(symb_tbl);
+
+    symb_tbl.emplace(reinterpret_cast<IdentExpr *>(var)->text, v);
+
+    return {};
+}
+
+eval (PrintStmt) {
+    Value v = expr->eval(symb_tbl);
+
+    if (std::holds_alternative<bool>(v)) {
+        std::cout << (std::get<bool>(v)? "true" : "false") << '\n';
+    } else {
+        std::cout << std::get<double>(v) << '\n';
+    }
+
+    return {};
+}
+
+eval (IfStmt) {
+    Value v = cond->eval(symb_tbl);
+
+    if (!std::holds_alternative<bool>(v)) {
+        throw SemError("Condition of if statement must be a boolean expression");
+    }
+
+    if (std::get<bool>(v)) {
+        stmt_t->eval(symb_tbl);
+    } else {
+        stmt_f->eval(symb_tbl);
+    }
+
+    return {};
+}
